@@ -4,6 +4,7 @@ import time
 
 import numpy as np
 from asyncua import Client
+from tqdm import tqdm
 
 
 class ResponsivenessJitterExperiment:
@@ -51,12 +52,16 @@ class ResponsivenessJitterExperiment:
         await client.connect()
 
         responsiveness_list = []
-        for i in range(self.num_requests):
+        for i in tqdm(
+            range(self.num_requests),
+            desc=f"Running {mode} mode responsiveness/jitter experiment",
+            unit=" requests",
+        ):
             responsiveness = await self.measure_responsiveness(client, mode)
             responsiveness_list.append(responsiveness)
-            print(
-                f"Request {i+1}/{self.num_requests} completed with responsiveness {responsiveness:.3f} seconds"
-            )
+            # print(
+            #    f"Request {i+1}/{self.num_requests} completed with responsiveness {responsiveness:.3f} seconds"
+            # )
 
         await client.disconnect()
 
@@ -64,8 +69,8 @@ class ResponsivenessJitterExperiment:
         mean_responsiveness = np.mean(responsiveness_list)
         jitter = np.std(responsiveness_list)
         # Print the results
-        print(f"Mean responsiveness: {mean_responsiveness:.3f} seconds")
-        print(f"Jitter: {jitter:.3f} seconds")
+        print(f"\t➡️ Mean responsiveness: {mean_responsiveness:.3f} seconds")
+        print(f"\t➡️ Jitter: {jitter:.3f} seconds")
         # TODO: write to file
 
     async def list_server_objects(self):
