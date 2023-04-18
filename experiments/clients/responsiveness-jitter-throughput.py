@@ -82,13 +82,6 @@ class ResponsivenessJitterThroughputExperiment:
             )
         await client.disconnect()
 
-        # Computing our experiment metrics
-        # mean_responsiveness = np.mean(responsiveness_list)
-        # jitter = np.std(responsiveness_list)
-        # Print the results
-        # print(f"\t➡️ Mean responsiveness: {mean_responsiveness:.3f} seconds")
-        # print(f"\t➡️ Jitter: {jitter:.3f} seconds")
-        # Format and store the raw experiment results
         df = pd.DataFrame().from_records(measurements)
         output_file = f"response_times_{mode}.csv"
         output_dir = Path(f"data/{self.experiment_name}")
