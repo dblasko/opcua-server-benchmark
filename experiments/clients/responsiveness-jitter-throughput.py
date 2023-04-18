@@ -89,24 +89,6 @@ class ResponsivenessJitterThroughputExperiment:
         df.to_csv(output_dir / output_file, index=False)
         print(f"\t➡️ Measurements written to {str(output_dir / output_file)}")
 
-    async def list_server_objects(self):
-        """For debug purposes only. Lists all objects in the server to understand their id's/structure."""
-        client = Client(self.server_url)
-        await client.connect()
-        root = client.get_objects_node()
-        children = await root.get_children()
-        for node in children:
-            dname = await node.read_display_name()
-            print(f"Node ID: {node.nodeid} display name: {dname.Text}")
-
-        node = client.get_node("ns=2;i=1")
-        children = await node.get_children()
-        for node in children:
-            dname = await node.read_display_name()
-            print(f"Node ID: {node.nodeid} display name: {dname.Text}")
-
-        client.disconnect()
-
 
 if __name__ == "__main__":
     # Example use
@@ -116,7 +98,6 @@ if __name__ == "__main__":
     node_id = "ns=2;i=2"
     # Create an instance of the experiment
     experiment = ResponsivenessJitterThroughputExperiment(server_url, node_id)
-    # asyncio.run(experiment.list_server_objects())
     # Run the experiment with read mode
     asyncio.run(experiment.run_experiment("read"))
     # Run the experiment with write mode
