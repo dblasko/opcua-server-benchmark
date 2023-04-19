@@ -4,16 +4,15 @@ import logging
 from asyncua import ua, Server
 
 
-async def setup_server():
+async def setup_server(name, uri, port):
     _logger = logging.getLogger(__name__)
     # Create OPC-UA server
     server = Server()
     await server.init()
-    server.set_endpoint("opc.tcp://localhost:4840/freeopcua/server/")
-    server.set_server_name("TestServer")
+    server.set_endpoint(f"opc.tcp://localhost:{port}/freeopcua/server/")
+    server.set_server_name(name)
 
     # Create address space
-    uri = "http://examples.freeopcua.github.io"
     idx = await server.register_namespace(uri)
     root = server.get_objects_node()
 
@@ -37,4 +36,7 @@ async def setup_server():
 # Start server setup
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    asyncio.run(setup_server(), debug=True)
+    asyncio.run(
+        setup_server("TestServer", "http://examples.freeopcua.github.io", "4048"),
+        debug=True,
+    )
