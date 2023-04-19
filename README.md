@@ -24,6 +24,7 @@ The **`server`** command supports the following **options**:
 
 - **`-n` or `--name` (optional)**: To specify a custom server name. **Defaults to "TestServer"**.
 - **`-u` or `--uri` (optional)**: To specify a custom base URI.
+- **`-p` or `--port` (optional)**: To specify the port the server should be exposed on. **Defaults to 4840**.
   
 The server is then available on `opc.tcp://localhost:4840`, with the following nodes:
 
@@ -46,6 +47,7 @@ The **`run-experiment`** command supports the following **options**:
 
 - **`-n` or `--name` (optional)**: name of your experimental session. The experiment's results will be stored under `data/{NAME}`. If a session with that name already exists, the previous results will be replaced if the given experiment had already been run in that session. Otherwise, they will be added next to the results of the other experiments of the session. **By default, the current timestamp will be used.**
 - **`-p` or `--post-process` (optional)**: If specified, the results of the experiment are directly post-processed after generation. Disabled by default.
+- **`-c` or `--config` (optional)**: Allows to specify a custom experiment config file (used instead of `experiments/config.yaml`). 
 
 Some options are specific to particular experiments:
 
