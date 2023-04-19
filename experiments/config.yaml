@@ -1,0 +1,2 @@
+server_url: opc.tcp://localhost:4840
+node_to_query_id: ns=2;i=2
