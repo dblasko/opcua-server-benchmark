@@ -2,7 +2,7 @@
 A tool for the benchmarking and evaluation of OPC UA servers.
 
 ## Dependencies
-We recommend creating a conda environment to install the project with its dependencies:
+We recommend creating a conda environment to install the project with its dependencies (*optional step*):
 ```bash
 conda create -n opcua python==3.10
 conda activate opcua
@@ -41,7 +41,7 @@ The different implemented experiments can be found under `experiments/clients`: 
 
 To run one or multiple experiments, use:
 ```bash
-python bin/experiment_controller.py run-experiment -e EXPERIMENT_NAME [-e EXPERIMENT_NAME2 ...]
+python bin/experiment_controller.py run-experiment EXPERIMENT_NAME [EXPERIMENT_NAME2 ...]
 ```
 The **`run-experiment`** command supports the following **options**:
 
@@ -60,7 +60,7 @@ Running experiments generates raw data that is stored in CSV format under `data/
 
 To generate the analysis for a given experimental session, use:
 ```bash
-python bin/experiment_controller.py post-process -e SESSION_NAME
+python bin/experiment_controller.py post-process SESSION_NAME [SESSION_NAME2 ...]
 ```
 The experiments that have been run in the session are automatically detected and processed.
 
