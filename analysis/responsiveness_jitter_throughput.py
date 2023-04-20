@@ -13,8 +13,12 @@ class ResponsivenessJitterThroughputAnalysis:
     def __init__(self, experiment_name):
         self.experiment_name = experiment_name
         input_dir = Path(f"data/{self.experiment_name}")
-        input_file_read = input_dir / "response_times_read.csv"
-        input_file_write = input_dir / "response_times_write.csv"
+        input_file_read = (
+            input_dir / "ResponsivenessJitterThroughputExperiment_read.csv"
+        )
+        input_file_write = (
+            input_dir / "ResponsivenessJitterThroughputExperiment_write.csv"
+        )
 
         if not input_dir.exists():
             raise ValueError(
@@ -80,7 +84,7 @@ class ResponsivenessJitterThroughputAnalysis:
         output_dir.mkdir(parents=True, exist_ok=True)
         with open(output_file, "w") as f:
             json.dump(summary, f, indent=4)
-        print(f"➡️ Analysis written to {str(output_file)}")
+        print(f"\t➡️ Analysis written to {str(output_file)}")
 
 
 if __name__ == "__main__":

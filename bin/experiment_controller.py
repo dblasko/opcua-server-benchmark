@@ -8,8 +8,6 @@ import click
 import yaml
 
 import experiments.servers.test_server as test_server
-import experiments.clients as clients
-import analysis
 
 
 def __load_client_config(path="experiments/clients/config.yaml"):
@@ -31,6 +29,11 @@ def __load_experiment_list(path="experiments/clients/"):
         for e_path in experiments_pathlist
         if e_path.is_file() and "__" not in str(e_path)
     ]
+
+
+def ___filename_to_classname(filename, type="Experiment"):
+    # type is Experiment or Analysis
+    return filename.replace("_", " ").title().replace(" ", "") + (type)
 
 
 # CLI SETUP
@@ -110,10 +113,14 @@ def main_run_experiment(experiments, config, name, post_process, mode):
             run_experiment_args["mode"] = mode
 
         try:
-            experiment_class_ = getattr(clients, experiment)
+            experiment_class_ = getattr(
+                importlib.import_module(f"experiments.clients.{experiment}"),
+                ___filename_to_classname(experiment, type="Experiment"),
+            )
             experiment_client = experiment_class_(**experiment_constructor)
-            experiment_client.run_experiment(**run_experiment_args)
-        except Exception:
+            asyncio.run(experiment_client.run_experiment(**run_experiment_args))
+        except Exception as e:
+            print(e)
             click.echo(
                 "Could not load valid experiment class, check if it exists and if it has a run_experiment method, and server_url, node_id and experiment_name in its constructor arguments. Skipping this experiment."
             )
@@ -122,7 +129,10 @@ def main_run_experiment(experiments, config, name, post_process, mode):
         # Post-process if requested
         if post_process:
             try:
-                analysis_class_ = getattr(analysis, experiment)
+                analysis_class_ = getattr(
+                    importlib.import_module(f"analysis.{experiment}"),
+                    ___filename_to_classname(experiment, type="Analysis"),
+                )
                 analysis_client = analysis_class_(experiment_name=name)
                 analysis_client.generate()
             except Exception:
@@ -136,43 +146,48 @@ def main_run_experiment(experiments, config, name, post_process, mode):
     "post-process", help="Generate the analysis of the data from an experiment"
 )
 @click.argument(
-    "session_name",
+    "session_names",
     nargs=-1,
     required=True,
     type=str,
-    help="Name of the experimental session to post-process",
 )
-def main_post_process(session_name):
+def main_post_process(session_names):
     # Detect all experiments that have been run in the session folder
-    detected_experiments = set()
-    try:
-        path = f"data/{session_name}/"
-        results_pathlist = Path(path).glob("*")
-        for r_path in results_pathlist:
-            for experiment in available_experiments:
-                if (
-                    r_path.is_file()
-                    and "__" not in str(r_path)
-                    and str(r_path).startswith(experiment)
-                ):
-                    detected_experiments.add(experiment)
-    except:
-        click.echo("Could not find the requested session folder in data.")
-        return
-    if len(detected_experiments) == 0:
-        click.echo("No experimental results found in the session folder.")
-        return
-
-    # For each detected experiment, run the according analyzer
-    for experiment in detected_experiments:
+    for session_name in session_names:
+        click.echo(f"Detecting experiment results in session {session_name}...")
+        detected_experiments = set()
         try:
-            analysis_class_ = getattr(analysis, experiment)
-            analysis_client = analysis_class_(experiment_name=session_name)
-            analysis_client.generate()
-        except Exception:
-            click.echo(
-                f"Could not post-process results of {experiment}, check if a class with the same name as the experiment is defined with a generate method in the analysis folder. Skipping this experiment."
-            )
+            path = f"data/{session_name}/"
+            results_pathlist = Path(path).glob("*")
+            for r_path in results_pathlist:
+                for experiment in available_experiments:
+                    if (
+                        r_path.is_file()
+                        and "__" not in str(r_path)
+                        and ___filename_to_classname(experiment, "Experiment")
+                        in str(r_path)
+                    ):
+                        detected_experiments.add(experiment)
+        except:
+            click.echo("Could not find the requested session folder in data.")
+            pass
+        if len(detected_experiments) == 0:
+            click.echo("No experimental results found in the session folder.")
+            pass
+
+        # For each detected experiment, run the according analyzer
+        for experiment in detected_experiments:
+            try:
+                analysis_class_ = getattr(
+                    importlib.import_module(f"analysis.{experiment}"),
+                    ___filename_to_classname(experiment, type="Analysis"),
+                )
+                analysis_client = analysis_class_(experiment_name=session_name)
+                analysis_client.generate()
+            except Exception:
+                click.echo(
+                    f"Could not post-process results of {experiment}, check if a class with the same name as the experiment is defined with a generate method in the analysis folder. Skipping this experiment."
+                )
 
 
 if __name__ == "__main__":

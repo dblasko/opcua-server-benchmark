@@ -51,7 +51,7 @@ The **`run-experiment`** command supports the following **options**:
 
 Some options are specific to particular experiments:
 
-- **responsiveness-jitter-throughput**
+- **responsivess_jitter_throughput**
   - **`-m` or `--mode` (optional)**: used to specify if the requests should only be done as "`read`" or "`write`". **By default, the experiment is run once for each mode.**
 
 
@@ -67,11 +67,11 @@ The experiments that have been run in the session are automatically detected and
 
 ____
 ## Extending and adding experiments 
-To implement new experiments, create your experiment file and class under `experiments/clients`. The experiment class should at least implement a `run_experiment` method. The files generated as an ouput of the experiment should be prefixed with the class name (`self.__class__.__name__`) to be automatically detected when analysis is run by the user. 
+To implement new experiments, create your experiment file and class under `experiments/clients`. The experiment class should at least implement a `run_experiment` method. The files generated as an ouput of the experiment should be prefixed with the class name (`self.__class__.__name__`) to be automatically detected when analysis is run by the user. Name the file as "experiment_name" with underscores as separators. The class in the file should be named as "ExperimentNameExperiment", with "Experiment" at the end.
 
 Then, if your experiment takes additional experiment-specific options, you can add those in the `bin/experiment_controller.py` similarly to the other experiments that do so in the file. 
 
-Finally, you should create the experiment post-processing class in a Python file with the same name as the experiment class under `analysis`. The analysis should be wrapped in a `generate` method of the class. 
+Finally, you should create the experiment post-processing class in a Python file with the same name as the experiment class (but replace "Experiment" with "Analysis") under `analysis`. The analysis should be wrapped in a `generate` method of the class. 
 
 Your new experiment should then be supported by the controller and can be used as specified by this documentation.
 
