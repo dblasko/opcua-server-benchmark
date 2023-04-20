@@ -67,7 +67,7 @@ The experiments that have been run in the session are automatically detected and
 
 ____
 ## Extending and adding experiments 
-To implement new experiments, create your experiment file and class under `experiments/clients`. In general, the experiment class should at least implement a `run_experiment` method.
+To implement new experiments, create your experiment file and class under `experiments/clients`. The experiment class should at least implement a `run_experiment` method. The files generated as an ouput of the experiment should be prefixed with the class name (`self.__class__.__name__`) to be automatically detected when analysis is run by the user. 
 
 Then, if your experiment takes additional experiment-specific options, you can add those in the `bin/experiment_controller.py` similarly to the other experiments that do so in the file. 
 

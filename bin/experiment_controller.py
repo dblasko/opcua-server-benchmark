@@ -143,10 +143,36 @@ def main_run_experiment(experiments, config, name, post_process, mode):
     help="Name of the experimental session to post-process",
 )
 def main_post_process(session_name):
-    # Detect all experiments that have been run in the session
+    # Detect all experiments that have been run in the session folder
+    detected_experiments = set()
+    try:
+        path = f"data/{session_name}/"
+        results_pathlist = Path(path).glob("*")
+        for r_path in results_pathlist:
+            for experiment in available_experiments:
+                if (
+                    r_path.is_file()
+                    and "__" not in str(r_path)
+                    and str(r_path).startswith(experiment)
+                ):
+                    detected_experiments.add(experiment)
+    except:
+        click.echo("Could not find the requested session folder in data.")
+        return
+    if len(detected_experiments) == 0:
+        click.echo("No experimental results found in the session folder.")
+        return
 
-    # for each, instanciate analyzer & run it w/ log messages
-    pass
+    # For each detected experiment, run the according analyzer
+    for experiment in detected_experiments:
+        try:
+            analysis_class_ = getattr(analysis, experiment)
+            analysis_client = analysis_class_(experiment_name=session_name)
+            analysis_client.generate()
+        except Exception:
+            click.echo(
+                f"Could not post-process results of {experiment}, check if a class with the same name as the experiment is defined with a generate method in the analysis folder. Skipping this experiment."
+            )
 
 
 if __name__ == "__main__":
