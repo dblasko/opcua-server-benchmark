@@ -56,12 +56,17 @@ class ResponsivenessJitterThroughputExperiment:
 
         return (start_time, end_time)
 
-    async def run_experiment(self, mode):
+    async def run_experiment(self, mode=None):
         """Runs the experiment and measures start- and end-times of requests.
 
         Args:
             mode: "read" or "write"
         """
+        if mode is None:  # If no mode is specified, run both read and write mode
+            await self.run_experiment(mode="read")
+            await self.run_experiment(mode="write")
+            return
+
         client = Client(self.server_url)
         await client.connect()
 
