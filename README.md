@@ -51,8 +51,9 @@ The **`run-experiment`** command supports the following **options**:
 
 Some options are specific to particular experiments:
 
-- **responsivess_jitter_throughput**
+- **responsivess_jitter_throughput & scalability**
   - **`-m` or `--mode` (optional)**: used to specify if the requests should only be done as "`read`" or "`write`". **By default, the experiment is run once for each mode.**
+  - **`-nc` or `--nclients` (optional)** used to specify how many clients/experiments to run in parallel. **Defaults to 10.**
 
 
 #### Processing experimental data

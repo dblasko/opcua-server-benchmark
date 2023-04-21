@@ -20,12 +20,14 @@ class ResponsivenessJitterThroughputExperiment:
         experiment_name=f'responsiveness_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
         num_requests=1000,
         data_size=64,
+        filename_prefix="",
     ):
         self.server_url = server_url
         self.node_id = node_id
         self.experiment_name = experiment_name
         self.num_requests = num_requests
         self.data_size = data_size
+        self.filename_prefix = str(filename_prefix)
 
     async def measure_response_times(self, client, mode):
         """Measures the response time of a read or write request.
@@ -88,7 +90,7 @@ class ResponsivenessJitterThroughputExperiment:
         await client.disconnect()
 
         df = pd.DataFrame().from_records(measurements)
-        output_file = f"{self.__class__.__name__}_{mode}.csv"  # Important to have the experiment class name at the beginning of the output file for automatic detection by the analyzer
+        output_file = f"{('ScalabilityExperiment_' + self.filename_prefix + '_') if self.filename_prefix != '' else ''}{self.__class__.__name__}_{mode}.csv"  # Important to have the experiment class name at the beginning of the output file for automatic detection by the analyzer
         output_dir = Path(f"data/{self.experiment_name}")
         output_dir.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_dir / output_file, index=False)

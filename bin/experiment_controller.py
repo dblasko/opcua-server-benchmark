@@ -89,7 +89,14 @@ def main_server(name, port, uri):
     type=click.Choice(["read", "write"]),
     help="(responsiveness-jitter-throughput ONLY) Specify read or write mode requests, by default both are performed",
 )
-def main_run_experiment(experiments, config, name, post_process, mode):
+@click.option(
+    "-nc",
+    "--nclients",
+    "nclients",
+    default=10,
+    help="Number of clients to run in parallel",
+)
+def main_run_experiment(experiments, config, name, post_process, mode, nclients):
     # Load config
     try:
         config = __load_client_config(config)
@@ -111,6 +118,8 @@ def main_run_experiment(experiments, config, name, post_process, mode):
         run_experiment_args = {}
         if mode is not None:
             run_experiment_args["mode"] = mode
+        if nclients is not None:
+            run_experiment_args["n_clients"] = nclients
 
         try:
             experiment_class_ = getattr(
@@ -164,8 +173,9 @@ def main_post_process(session_names):
                     if (
                         r_path.is_file()
                         and "__" not in str(r_path)
-                        and ___filename_to_classname(experiment, "Experiment")
-                        in str(r_path)
+                        and str(r_path.name).startswith(
+                            ___filename_to_classname(experiment, "Experiment")
+                        )
                     ):
                         detected_experiments.add(experiment)
         except:
@@ -184,7 +194,8 @@ def main_post_process(session_names):
                 )
                 analysis_client = analysis_class_(experiment_name=session_name)
                 analysis_client.generate()
-            except Exception:
+            except Exception as e:
+                print(e)
                 click.echo(
                     f"Could not post-process results of {experiment}, check if a class with the same name as the experiment is defined with a generate method in the analysis folder. Skipping this experiment."
                 )
