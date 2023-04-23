@@ -3,6 +3,7 @@ import logging
 import importlib
 from pathlib import Path
 from datetime import datetime
+from sys import platform
 
 import click
 import yaml
@@ -22,7 +23,12 @@ def __load_client_config(path="experiments/clients/config.yaml"):
         return config
 
 
-def __load_experiment_list(path="experiments\\clients\\"):
+def __load_experiment_list(path="experiments/clients/"):
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        path=path.replace("\\", "/")
+    elif platform == "win32":
+        path=path.replace("/", "\\")
+
     experiments_pathlist = Path(path).glob("*.py")
     return [
         str(e_path).replace(path, "").replace(".py", "")
