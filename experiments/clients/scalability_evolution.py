@@ -34,11 +34,11 @@ class ScalabilityEvolutionExperiment:
             ValueError: if mode is not "read" or "write"
         """
         for i in range(len(list_n_clients)):
-            print(list_n_clients[i])
             await ScalabilityExperiment(
                     self.server_url,
                     self.node_id,
                     self.experiment_name,
                     self.num_requests,
                     self.data_size,
+                    i,
                 ).run_experiment(list_n_clients[i], mode)
