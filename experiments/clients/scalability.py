@@ -24,7 +24,7 @@ class ScalabilityExperiment:
         self.num_requests = num_requests
         self.data_size = data_size
 
-    async def run_experiment(self, n_clients, mode=None):
+    async def run_experiment(self, n_clients=10, mode=None):
         """
 
         Args:
