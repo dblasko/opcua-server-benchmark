@@ -22,7 +22,7 @@ def __load_client_config(path="experiments/clients/config.yaml"):
         return config
 
 
-def __load_experiment_list(path="experiments/clients/"):
+def __load_experiment_list(path="experiments\\clients\\"):
     experiments_pathlist = Path(path).glob("*.py")
     return [
         str(e_path).replace(path, "").replace(".py", "")
@@ -93,7 +93,7 @@ def main_server(name, port, uri):
     "-nc",
     "--nclients",
     "nclients",
-    default=10,
+    default=None,
     help="Number of clients to run in parallel",
 )
 def main_run_experiment(experiments, config, name, post_process, mode, nclients):
@@ -119,7 +119,7 @@ def main_run_experiment(experiments, config, name, post_process, mode, nclients)
         if mode is not None:
             run_experiment_args["mode"] = mode
         if nclients is not None:
-            run_experiment_args["n_clients"] = nclients
+            run_experiment_args["n_clients"] = int(nclients)
 
         try:
             experiment_class_ = getattr(
