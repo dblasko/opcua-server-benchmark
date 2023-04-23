@@ -92,7 +92,7 @@ class ResponsivenessJitterThroughputExperiment:
         await client.disconnect()
 
         df = pd.DataFrame().from_records(measurements)
-        output_file = f"{('Evolution_'+self.experiment_number+'_') if self.experiment_number != '' else ''}{('ScalabilityExperiment_' + self.filename_prefix + '_') if self.filename_prefix != '' else ''}{self.__class__.__name__}_{mode}.csv"  # Important to have the experiment class name at the beginning of the output file for automatic detection by the analyzer
+        output_file = f"{('ScalabilityEvolutionExperiment_'+self.experiment_number+'_') if self.experiment_number != '' else ''}{('ScalabilityExperiment_' + self.filename_prefix + '_') if self.filename_prefix != '' else ''}{self.__class__.__name__}_{mode}.csv"  # Important to have the experiment class name at the beginning of the output file for automatic detection by the analyzer
         output_dir = Path(f"data/{self.experiment_name}")
         output_dir.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_dir / output_file, index=False)
