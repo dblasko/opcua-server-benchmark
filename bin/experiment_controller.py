@@ -46,7 +46,6 @@ def ___filename_to_classname(filename, type="Experiment"):
 main = click.Group(help="Experiment controller")
 available_experiments = __load_experiment_list()
 
-
 # SERVER
 @main.command("server", help="Start the experimental OPC UA server")
 @click.option(
@@ -102,7 +101,15 @@ def main_server(name, port, uri):
     default=None,
     help="Number of clients to run in parallel",
 )
-def main_run_experiment(experiments, config, name, post_process, mode, nclients):
+@click.option(
+    "-lc",
+    "--listclients",
+    "listclients",
+    default=None,
+    help="list of clients to run in parallel",
+)
+
+def main_run_experiment(experiments, config, name, post_process, mode, nclients, listclients):
     # Load config
     try:
         config = __load_client_config(config)
@@ -126,6 +133,11 @@ def main_run_experiment(experiments, config, name, post_process, mode, nclients)
             run_experiment_args["mode"] = mode
         if nclients is not None:
             run_experiment_args["n_clients"] = int(nclients)
+        if listclients is not None:
+            list  = []
+            for clients in listclients:
+                list.append(int(clients))
+            run_experiment_args["l_clients"] = list
 
         try:
             experiment_class_ = getattr(
