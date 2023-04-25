@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 class ScalabilityEvolutionAnalysis:
@@ -84,6 +85,7 @@ class ScalabilityEvolutionAnalysis:
         summary = {}
 
         for evolution in range(len(self.evolutions_read)):  # for each group of nclient in parallel
+
             read_responsivenesses = []
             read_jitters = []
             read_throughput_means = []
@@ -113,7 +115,8 @@ class ScalabilityEvolutionAnalysis:
                     "throughput_mean": np.mean(read_throughput_means),
                     "throughput_mean_std": np.mean(read_throughput_stds),
                 }
-                summary[str("read_mode_" + str(len(self.read_dataframes[evolution])))] = read_summary
+                clients = len(self.read_dataframes[evolution])
+                summary[str("read_mode_" + str(clients))] = read_summary
 
                 if len(self.write_dataframes) != 0:
                     for write_dataframe in self.write_dataframes[evolution]:
@@ -134,7 +137,32 @@ class ScalabilityEvolutionAnalysis:
                         "throughput_mean": np.mean(write_throughput_means),
                         "throughput_mean_std": np.mean(write_throughput_stds),
                     }
-                    summary[str("write_mode_" + str(len(self.read_dataframes[evolution])))] = write_summary
+                    clients = len(self.write_dataframes[evolution])
+                    summary[str("write_mode_" + str(clients))] = write_summary
+
+        # Create a dataframe with the summary
+        summary_df = pd.DataFrame.from_dict(summary, orient="index")
+        index = summary_df.index.str.split("_mode_")
+        summary_df = summary_df.reset_index(drop=True)
+        summary_df[['mode', 'n_client']] = pd.DataFrame(index.tolist())
+        summary_df['n_client'] = summary_df['n_client'].astype(int)
+        summary_df = summary_df.set_index(['mode', 'n_client'])
+        summary_df = summary_df.sort_index(level=[0,1])
+
+        modes = summary_df.index.get_level_values(0).unique()
+        metrics = summary_df.columns
+
+        fig, axs = plt.subplots(2, 2)
+        fig.subplots_adjust(hspace=0.5, wspace=0.5)
+        fig.suptitle('Scalability Evolution Experiment')
+        for i in [0, 1]:
+            for j in [0, 1]:
+                for m in modes:
+                    axs[i, j].plot(summary_df.loc[m, metrics[i+2*j]], label=str(m))
+                    axs[i, j].set(xlabel='Number of clients', ylabel= str(metrics[i + 2 * j]) +
+                                                                      (" (bytes/s)" if metrics[i + 2 * j] == "throughput_mean" else "") +
+                                                                      (" (s)" if metrics[i + 2 * j] == "responsiveness_mean" else ""))
+                    axs[i, j].legend()
 
         output_dir = Path(f"data/{self.experiment_name}/results")
         output_file = output_dir / "scalability_Evolution_summary.json"
@@ -142,3 +170,6 @@ class ScalabilityEvolutionAnalysis:
         with open(output_file, "w") as f:
             json.dump(summary, f, indent=4)
         print(f"\t➡️ Analysis written to {str(output_file)}")
+
+        fig.savefig(output_dir / "scalability_Evolution.png")
+        print(f"\t➡️ Figure saved to {str(output_file)}")
