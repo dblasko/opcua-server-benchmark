@@ -25,9 +25,9 @@ def __load_client_config(path="experiments/clients/config.yaml"):
 
 def __load_experiment_list(path="experiments/clients/"):
     if platform == "linux" or platform == "linux2" or platform == "darwin":
-        path=path.replace("\\", "/")
+        path = path.replace("\\", "/")
     elif platform == "win32":
-        path=path.replace("/", "\\")
+        path = path.replace("/", "\\")
 
     experiments_pathlist = Path(path).glob("*.py")
     return [
@@ -42,9 +42,17 @@ def ___filename_to_classname(filename, type="Experiment"):
     return filename.replace("_", " ").title().replace(" ", "") + (type)
 
 
+def __parse_listclients(listclients):
+    client_nbs = []
+    for clients in listclients.split(","):
+        client_nbs.append(int(clients))
+    return client_nbs
+
+
 # CLI SETUP
 main = click.Group(help="Experiment controller")
 available_experiments = __load_experiment_list()
+
 
 # SERVER
 @main.command("server", help="Start the experimental OPC UA server")
@@ -106,10 +114,11 @@ def main_server(name, port, uri):
     "--listclients",
     "listclients",
     default=None,
-    help="list of clients to run in parallel",
+    help='(scalability_evolution ONLY) List of numbers of clients to run in parallel, e.g. "1,10,50,100"',
 )
-
-def main_run_experiment(experiments, config, name, post_process, mode, nclients, listclients):
+def main_run_experiment(
+    experiments, config, name, post_process, mode, nclients, listclients
+):
     # Load config
     try:
         config = __load_client_config(config)
@@ -134,10 +143,14 @@ def main_run_experiment(experiments, config, name, post_process, mode, nclients,
         if nclients is not None:
             run_experiment_args["n_clients"] = int(nclients)
         if listclients is not None:
-            list  = []
-            for clients in listclients:
-                list.append(int(clients))
-            run_experiment_args["l_clients"] = list
+            try:
+                client_nbs = __parse_listclients(listclients)
+            except:
+                click.echo(
+                    f"Could not parse your list of client amounts {listclients}. Should be of the form 1,10,50,..."
+                )
+                return
+            run_experiment_args["l_clients"] = client_nbs
 
         try:
             experiment_class_ = getattr(

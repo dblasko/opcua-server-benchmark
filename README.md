@@ -53,7 +53,10 @@ Some options are specific to particular experiments:
 
 - **responsivess_jitter_throughput & scalability**
   - **`-m` or `--mode` (optional)**: used to specify if the requests should only be done as "`read`" or "`write`". **By default, the experiment is run once for each mode.**
-  - **`-nc` or `--nclients` (optional)** used to specify how many clients/experiments to run in parallel. **Defaults to 10.**
+- **scalability**
+  - **`-nc` or `--nclients` (optional)**: used to specify how many clients/experiments to run in parallel. **Defaults to 10.**
+- **scalability_evolution**
+  - **`-lc` or `--listclients` (optional)**: used to specify the list of numbers of clients for which to run the scalability experiment. In the form `1,10,50,...` - leads to measure the metrics for 1 client, 10 clients and 50 clients in parallel.  **Defaults to 1,3,5,10.**
 
 
 #### Processing experimental data
