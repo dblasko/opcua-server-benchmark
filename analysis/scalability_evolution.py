@@ -39,12 +39,16 @@ class ScalabilityEvolutionAnalysis:
 
         for evolution in self.evolutions_read:
             input_files_read_evo = Path(input_dir).glob(
-                "ScalabilityEvolutionExperiment_"+str(evolution)+"_ScalabilityExperiment_*_ResponsivenessJitterThroughputExperiment_read.csv"
+                "ScalabilityEvolutionExperiment_"
+                + str(evolution)
+                + "_ScalabilityExperiment_*_ResponsivenessJitterThroughputExperiment_read.csv"
             )
             read_dataframes_evo = [
-                pd.read_csv(e_path) for e_path in input_files_read_evo if e_path.is_file()
+                pd.read_csv(e_path)
+                for e_path in input_files_read_evo
+                if e_path.is_file()
             ]
-            if len(read_dataframes_evo) != int(evolution) :
+            if len(read_dataframes_evo) != int(evolution):
                 raise ValueError(
                     f"Number of dataframes for evolution {evolution} is not equal to the number of clients for read."
                 )
@@ -52,17 +56,20 @@ class ScalabilityEvolutionAnalysis:
 
         for evolution in self.evolutions_write:
             input_files_write_evo = Path(input_dir).glob(
-                "ScalabilityEvolutionExperiment_"+str(evolution)+"_ScalabilityExperiment_*_ResponsivenessJitterThroughputExperiment_write.csv"
+                "ScalabilityEvolutionExperiment_"
+                + str(evolution)
+                + "_ScalabilityExperiment_*_ResponsivenessJitterThroughputExperiment_write.csv"
             )
             write_dataframes_evo = [
-                pd.read_csv(e_path) for e_path in input_files_write_evo if e_path.is_file()
+                pd.read_csv(e_path)
+                for e_path in input_files_write_evo
+                if e_path.is_file()
             ]
-            if len(write_dataframes_evo) != int(evolution) :
+            if len(write_dataframes_evo) != int(evolution):
                 raise ValueError(
                     f"Number of dataframes for evolution {evolution} is not equal to the number of clients for write."
                 )
             self.write_dataframes.append(write_dataframes_evo)
-
 
         if len(self.read_dataframes) == 0 and len(self.write_dataframes) == 0:
             raise ValueError(
@@ -84,8 +91,9 @@ class ScalabilityEvolutionAnalysis:
         """ """
         summary = {}
 
-        for evolution in range(len(self.evolutions_read)):  # for each group of nclient in parallel
-
+        for evolution in range(
+            len(self.evolutions_read)
+        ):  # for each group of nclient in parallel
             read_responsivenesses = []
             read_jitters = []
             read_throughput_means = []
@@ -144,25 +152,47 @@ class ScalabilityEvolutionAnalysis:
         summary_df = pd.DataFrame.from_dict(summary, orient="index")
         index = summary_df.index.str.split("_mode_")
         summary_df = summary_df.reset_index(drop=True)
-        summary_df[['mode', 'n_client']] = pd.DataFrame(index.tolist())
-        summary_df['n_client'] = summary_df['n_client'].astype(int)
-        summary_df = summary_df.set_index(['mode', 'n_client'])
-        summary_df = summary_df.sort_index(level=[0,1])
+        summary_df[["mode", "n_client"]] = pd.DataFrame(index.tolist())
+        summary_df["n_client"] = summary_df["n_client"].astype(int)
+        summary_df = summary_df.set_index(["mode", "n_client"])
+        summary_df = summary_df.sort_index(level=[0, 1])
 
         modes = summary_df.index.get_level_values(0).unique()
         metrics = summary_df.columns
 
-        fig, axs = plt.subplots(2, 2)
+        fig, axs = plt.subplots(2, 2, figsize=(9, 5))
         fig.subplots_adjust(hspace=0.5, wspace=0.5)
-        fig.suptitle('Scalability Evolution Experiment')
+        fig.suptitle("Scalability Evolution Experiment")
         for i in [0, 1]:
             for j in [0, 1]:
                 for m in modes:
-                    axs[i, j].plot(summary_df.loc[m, metrics[i+2*j]], label=str(m))
-                    axs[i, j].set(xlabel='Number of clients', ylabel= str(metrics[i + 2 * j]) +
-                                                                      (" (bytes/s)" if metrics[i + 2 * j] == "throughput_mean" else "") +
-                                                                      (" (s)" if metrics[i + 2 * j] == "responsiveness_mean" else ""))
-                    axs[i, j].legend()
+                    idx_vals = summary_df.loc[m, metrics[i + 2 * j]].index.values
+                    vals = summary_df.loc[m, metrics[i + 2 * j]].values
+                    axs[i, j].plot(
+                        idx_vals,
+                        vals,
+                        label=str(m),
+                        marker="o",
+                        # linestyle="--",
+                    )
+                    axs[i, j].set(
+                        xlabel="Number of clients",
+                        ylabel=str(metrics[i + 2 * j])
+                        + (
+                            " (bytes/s)"
+                            if metrics[i + 2 * j] == "throughput_mean"
+                            else ""
+                        )
+                        + (
+                            " (s)"
+                            if metrics[i + 2 * j] == "responsiveness_mean"
+                            else ""
+                        ),
+                    )
+                    axs[i, j].set_xticks(idx_vals, idx_vals, minor=False)
+                    # axs[i, j].legend()
+        handles, labels = axs[0, 0].get_legend_handles_labels()
+        fig.legend(handles, labels, loc="upper right", ncol=2)
 
         output_dir = Path(f"data/{self.experiment_name}/results")
         output_file = output_dir / "scalability_Evolution_summary.json"
@@ -171,5 +201,5 @@ class ScalabilityEvolutionAnalysis:
             json.dump(summary, f, indent=4)
         print(f"\t➡️ Analysis written to {str(output_file)}")
 
-        fig.savefig(output_dir / "scalability_Evolution.png")
-        print(f"\t➡️ Figure saved to {str(output_file)}")
+        fig.savefig(output_dir / "scalability_Evolution.png", dpi=250)
+        print(f"\t➡️ Figure saved to {str(output_dir / 'scalability_Evolution.png')}")
