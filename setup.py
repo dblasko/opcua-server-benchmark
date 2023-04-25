@@ -10,6 +10,7 @@ setup(
         "pyaml",
         "asyncua",
         "click",
+        "matplotlib",
     ],
     packages=find_packages(),
 )
