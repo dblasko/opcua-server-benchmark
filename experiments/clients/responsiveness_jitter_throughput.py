@@ -17,6 +17,11 @@ class ResponsivenessJitterThroughputExperiment:
         self,
         server_url,
         node_id,
+        server_user,
+        server_password,
+        server_cert_app_uri,
+        server_pub_cert,
+        server_priv_cert,
         experiment_name=f'responsiveness_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
         num_requests=1000,
         data_size=64,
@@ -30,6 +35,11 @@ class ResponsivenessJitterThroughputExperiment:
         self.data_size = data_size
         self.filename_prefix = str(filename_prefix)
         self.experiment_number = str(experiment_number)
+        self.server_user = server_user
+        self.server_password = server_password
+        self.server_cert_app_uri = server_cert_app_uri
+        self.server_pub_cert = server_pub_cert
+        self.server_priv_cert = server_priv_cert
 
     async def measure_response_times(self, client, mode):
         """Measures the response time of a read or write request.
@@ -72,7 +82,15 @@ class ResponsivenessJitterThroughputExperiment:
             return
 
         client = Client(self.server_url)
-        await client.connect()
+        client.set_user(self.server_user)
+        client.set_password(self.server_password)
+        client.application_uri = self.server_cert_app_uri
+        await client.set_security_string("Basic256,Sign,uaexpert.der,uaexpert_key.pem")
+        try:
+            await client.connect()
+        except Exception as e:
+            print(f"Error: {e}")
+        print("connected")
 
         measurements = []
         for i in tqdm(

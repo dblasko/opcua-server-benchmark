@@ -135,6 +135,11 @@ def main_run_experiment(
             "server_url": config["server_url"],
             "node_id": config["node_to_query_id"],
             "experiment_name": name,
+            "server_user": config["server_user"],
+            "server_password": config["server_password"],
+            "server_cert_app_uri": config["server_certificate_application_uri"],
+            "server_pub_cert": config["server_public_cert"],
+            "server_priv_cert": config["server_private_cert"],
         }
         # Load experiment-specific options that are passed to run_experiment
         run_experiment_args = {}

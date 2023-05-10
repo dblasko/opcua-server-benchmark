@@ -14,10 +14,15 @@ class ScalabilityExperiment:
         self,
         server_url,
         node_id,
+        server_user,
+        server_password,
+        server_cert_app_uri,
+        server_pub_cert,
+        server_priv_cert,
         experiment_name=f'scalability_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
         num_requests=1000,
         data_size=64,
-        experiment_number = "",
+        experiment_number="",
     ):
         self.server_url = server_url
         self.node_id = node_id
@@ -25,6 +30,11 @@ class ScalabilityExperiment:
         self.num_requests = num_requests
         self.data_size = data_size
         self.experiment_number = str(experiment_number)
+        self.server_user = server_user
+        self.server_password = server_password
+        self.server_cert_app_uri = server_cert_app_uri
+        self.server_pub_cert = server_pub_cert
+        self.server_priv_cert = server_priv_cert
 
     async def run_experiment(self, n_clients=10, mode=None):
         """
@@ -41,6 +51,11 @@ class ScalabilityExperiment:
                 ResponsivenessJitterThroughputExperiment(
                     self.server_url,
                     self.node_id,
+                    self.server_user,
+                    self.server_password,
+                    self.server_cert_app_uri,
+                    self.server_pub_cert,
+                    self.server_priv_cert,
                     self.experiment_name,
                     self.num_requests,
                     self.data_size,
