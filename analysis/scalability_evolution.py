@@ -85,6 +85,7 @@ class ScalabilityEvolutionAnalysis:
             frame.responsiveness.std(),
             frame.throughput.mean(),
             frame.throughput.std(),
+            frame.responsiveness
         )
 
     def generate(self):
@@ -98,11 +99,13 @@ class ScalabilityEvolutionAnalysis:
             read_jitters = []
             read_throughput_means = []
             read_throughput_stds = []
+            read_responsiveness = []
 
             write_responsivenesses = []
             write_jitters = []
             write_throughput_means = []
             write_throughput_stds = []
+            write_responsiveness = []
 
             if len(self.read_dataframes) != 0:
                 for read_dataframe in self.read_dataframes[evolution]:
@@ -111,17 +114,20 @@ class ScalabilityEvolutionAnalysis:
                         jitter_mean,
                         through_mean,
                         through_std,
+                        responsiveness
                     ) = self.__analyze_dataframe(read_dataframe)
                     read_responsivenesses.append(resp_mean)
                     read_jitters.append(jitter_mean)
                     read_throughput_means.append(through_mean)
                     read_throughput_stds.append(through_std)
+                    read_responsiveness.append(list(responsiveness))
 
                 read_summary = {
                     "responsiveness_mean": np.mean(read_responsivenesses),
                     "jitter_mean": np.mean(read_jitters),
                     "throughput_mean": np.mean(read_throughput_means),
                     "throughput_mean_std": np.mean(read_throughput_stds),
+                    "responsiveness": list(read_responsiveness)
                 }
                 clients = len(self.read_dataframes[evolution])
                 summary[str("read_mode_" + str(clients))] = read_summary
@@ -133,17 +139,20 @@ class ScalabilityEvolutionAnalysis:
                             jitter_mean,
                             through_mean,
                             through_std,
+                            responsiveness
                         ) = self.__analyze_dataframe(write_dataframe)
                         write_responsivenesses.append(resp_mean)
                         write_jitters.append(jitter_mean)
                         write_throughput_means.append(through_mean)
                         write_throughput_stds.append(through_std)
+                        write_responsiveness.append(list(responsiveness))
 
                     write_summary = {
                         "responsiveness_mean": np.mean(write_responsivenesses),
                         "jitter_mean": np.mean(write_jitters),
                         "throughput_mean": np.mean(write_throughput_means),
                         "throughput_mean_std": np.mean(write_throughput_stds),
+                        "responsiveness": list(write_responsiveness)
                     }
                     clients = len(self.write_dataframes[evolution])
                     summary[str("write_mode_" + str(clients))] = write_summary
@@ -160,7 +169,7 @@ class ScalabilityEvolutionAnalysis:
         modes = summary_df.index.get_level_values(0).unique()
         metrics = summary_df.columns
 
-        fig, axs = plt.subplots(2, 2, figsize=(9, 5))
+        fig, axs = plt.subplots(2, 3, figsize=(9, 5))
         fig.subplots_adjust(hspace=0.5, wspace=0.5)
         fig.suptitle("Scalability Evolution Experiment")
         for i in [0, 1]:
@@ -190,9 +199,31 @@ class ScalabilityEvolutionAnalysis:
                         ),
                     )
                     axs[i, j].set_xticks(idx_vals, idx_vals, minor=False)
-                    # axs[i, j].legend()
         handles, labels = axs[0, 0].get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper right", ncol=2)
+
+        for m in [0, 1]:
+            vals = summary_df.loc[modes[m], "responsiveness"].values
+            n_client = summary_df.loc[modes[m], "responsiveness"].index.values
+
+            # create a dtaframe with "n_client", "responsiveness" as columns
+            df = pd.DataFrame(columns=["responsiveness"])
+            df.index.name = 'n_client'
+
+            for i in range(len(vals)):
+                for _ in range(len(vals[i])):
+                    if n_client[i] in df.index:
+                        df.loc[n_client[i], 'responsiveness'] = np.append(np.asarray(df.loc[n_client[i], 'responsiveness']), (vals[i][0]))
+                    else :
+                        df.loc[n_client[i], 'responsiveness'] = vals[i][0]
+
+            axs[m, 2].hist(
+                df['responsiveness'].values,
+                label=df.index,
+            )
+            axs[m, 2].legend().set_title('n client')
+            axs[m, 2].set_ylabel('Frequency')
+            axs[m, 2].set_xlabel(f'response time {modes[m]}')
 
         output_dir = Path(f"data/{self.experiment_name}/results")
         output_file = output_dir / "scalability_Evolution_summary.json"
