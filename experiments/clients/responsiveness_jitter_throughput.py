@@ -3,6 +3,7 @@ import random
 import time
 from datetime import datetime
 from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
@@ -23,7 +24,7 @@ class ResponsivenessJitterThroughputExperiment:
         server_pub_cert,
         server_priv_cert,
         experiment_name=f'responsiveness_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
-        num_requests=10,  # TODO: make default 1000 configurable
+        num_requests=1000,  # TODO: make default 1000 configurable
         data_size=64,
         filename_prefix="",
         experiment_number="",
@@ -59,10 +60,12 @@ class ResponsivenessJitterThroughputExperiment:
         nodes_to_read = [client.get_node(node_id) for node_id in self.node_ids]
         # Create a random data value of the given size
         data = bytes([random.randint(0, 255) for _ in range(self.data_size)])
+        size_read = None
 
         start_time = time.time()
         if mode == "read":
-            _ = await client.read_values(nodes_to_read)
+            read = await client.read_values(nodes_to_read)
+            size_read = np.sum([sys.getsizeof(r) for r in read])
         elif mode == "write":
             await client.write_values(
                 nodes_to_read, [data for i in range(len(nodes_to_read))]
@@ -71,7 +74,7 @@ class ResponsivenessJitterThroughputExperiment:
             raise ValueError("Invalid mode")
         end_time = time.time()
 
-        return (start_time, end_time)
+        return (start_time, end_time, size_read)
 
     async def run_experiment(self, mode=None):
         """Runs the experiment and measures start- and end-times of requests.
@@ -101,12 +104,14 @@ class ResponsivenessJitterThroughputExperiment:
             desc=f"Running {mode} mode responsiveness/jitter/throughput experiment",
             unit=" requests",
         ):
-            start_time, end_time = await self.measure_response_times(client, mode)
+            start_time, end_time, data_size_read = await self.measure_response_times(
+                client, mode
+            )
             measurements.append(
                 {
                     "start_time": start_time,
                     "end_time": end_time,
-                    "data_size": self.data_size,
+                    "data_size": self.data_size if mode == "write" else data_size_read,
                     "mode": mode,
                 }
             )

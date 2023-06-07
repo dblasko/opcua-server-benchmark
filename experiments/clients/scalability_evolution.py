@@ -11,7 +11,7 @@ class ScalabilityEvolutionExperiment:
     def __init__(
         self,
         server_url,
-        node_id,
+        node_ids,
         server_user,
         server_password,
         server_cert_app_uri,
@@ -22,7 +22,7 @@ class ScalabilityEvolutionExperiment:
         data_size=64,
     ):
         self.server_url = server_url
-        self.node_id = node_id
+        self.node_ids = node_ids
         self.experiment_name = experiment_name
         self.num_requests = num_requests
         self.data_size = data_size
@@ -43,7 +43,7 @@ class ScalabilityEvolutionExperiment:
         for i in range(len(l_clients)):
             await ScalabilityExperiment(
                 self.server_url,
-                self.node_id,
+                self.node_ids,
                 self.server_user,
                 self.server_password,
                 self.server_cert_app_uri,

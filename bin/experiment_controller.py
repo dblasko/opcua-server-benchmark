@@ -135,6 +135,9 @@ def main_run_experiment(
     for experiment in experiments:
         click.echo(f"Running requested experiment {experiment}...")
 
+        config["nodes_to_query_ids"] = config["nodes_to_query_ids"][:40]
+        click.echo(f'{len(config["nodes_to_query_ids"])} nodes to read in experiments.')
+
         experiment_constructor = {
             "server_url": config["server_url"],
             "node_ids": config["nodes_to_query_ids"],
