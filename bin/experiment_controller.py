@@ -17,9 +17,13 @@ def __load_client_config(path="experiments/clients/config.yaml"):
         if (
             config is None
             or "server_url" not in config
-            or "node_to_query_id" not in config
+            or "nodes_to_query_ids" not in config
         ):
             raise Exception
+        nodes_to_query_ids = [
+            ("ns=2;s=" + node["identifier"]) for node in config["nodes_to_query_ids"]
+        ]
+        config["nodes_to_query_ids"] = nodes_to_query_ids
         return config
 
 
@@ -130,10 +134,10 @@ def main_run_experiment(
     # Run experiments
     for experiment in experiments:
         click.echo(f"Running requested experiment {experiment}...")
-        # TODO: add experiment specific options that go to constructor when necessary
+
         experiment_constructor = {
             "server_url": config["server_url"],
-            "node_id": config["node_to_query_id"],
+            "node_ids": config["nodes_to_query_ids"],
             "experiment_name": name,
             "server_user": config["server_user"],
             "server_password": config["server_password"],

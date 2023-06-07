@@ -1,0 +1,148 @@
+opcua:
+  url: opc.tcp://host.docker.internal:4840
+  prefix: ""
+  namespace: SinumerikVarProvider
+  interval: 100
+
+mqtt:
+  hostname: 127.0.0.1
+  topic: WFL
+  port: 1883
+
+nodes:
+  # For Debugging
+  - identifier: /Channel/ChannelDiagnose/sumCycleTimeNet
+    topic: Debug/sumCycleTimeNet
+
+  - topic: State/G0Mode
+    identifier: "/Channel/State/G0Mode"
+  - topic: State/progStatus
+    identifier: "/Channel/State/progStatus"
+  - topic: State/progStarts
+    identifier: "/Channel/State/ncStartCounter"
+  - topic: State/progEnds
+    identifier: "/Channel/State/ncProgEndCounter"
+  - topic: State/progResets
+    identifier: "/Channel/State/ncResetCounter"
+  - topic: State/findBlActive
+    identifier: "/Channel/State/findBlActive"
+  - topic: State/opMode
+    identifier: "/Bag/State/opMode"
+  - topic: State/readyActive
+    identifier: "/Bag/State/readyActive"
+  - topic: State/resetActive
+    identifier: "/Bag/State/resetActive"
+  - topic: State/progToolIdent
+    identifier: "/Channel/State/progToolIdent"
+  - topic: State/actToolIdent
+    identifier: "/Channel/State/actToolIdent"
+  - topic: State/actTNumber
+    identifier: "/Channel/State/actTNumber"
+  - topic: State/actToolLength1
+    identifier: "/Channel/State/actToolLength1"
+  - topic: State/actToolRadius
+    identifier: "/Channel/State/actToolRadius"
+  - topic: State/acAlarmStat
+    identifier: "/Channel/State/acAlarmStat"
+  - topic: Program/progName1
+    identifier: "/Channel/ProgramInfo/progName"
+  - topic: Program/msg
+    identifier: "/Channel/ProgramInfo/msg"
+  - topic: Program/actLineNumber
+    identifier: "/Channel/ProgramInfo/actLineNumber"
+  - topic: Program/actBlock
+    identifier: "/Channel/ProgramInfo/actBlock"
+  - topic: Program/progName2
+    identifier: "/Channel/ProgramPointer/progName"
+  - topic: Program/blockNoStr
+    identifier: "/Channel/ProgramPointer/blockNoStr"
+  - topic: Program/feedRateOvr
+    identifier: "/Channel/State/feedRateIpoOvr"
+
+  - topic: Spindle/S1/actSpeed
+    identifier: "/Channel/Spindle/actSpeed[u1,1]"
+  - topic: Spindle/S1/speedOvr
+    identifier: "/Channel/Spindle/speedOvr[u1,1]"
+  - topic: Spindle/S1/driveLoad
+    identifier: "/Channel/Spindle/driveLoad[u1,1]"
+  - topic: Spindle/S1/turnState
+    identifier: "/Channel/Spindle/turnState[u1,1]"
+  - topic: Spindle/S1/speedOvr
+    identifier: "/Channel/MachineAxis/feedRateOvr[u1,1]"
+
+  - topic: Spindle/S2/actSpeed
+    identifier: "/Channel/Spindle/actSpeed[u1,2]"
+  - topic: Spindle/S2/speedOvr
+    identifier: "/Channel/Spindle/speedOvr[u1,2]"
+  - topic: Spindle/S2/driveLoad
+    identifier: "/Channel/Spindle/driveLoad[u1,2]"
+  - topic: Spindle/S2/turnState
+    identifier: "/Channel/Spindle/turnState[u1,2]"
+  - topic: Spindle/S2/speedOvr
+    identifier: "/Channel/MachineAxis/feedRateOvr[u1,2]"
+
+  - topic: Axes/X/aaLeadP
+    identifier: "/Channel/MachineAxis/aaLeadP[u1,1]"
+  - topic: Axes/Y/aaLeadP
+    identifier: "/Channel/MachineAxis/aaLeadP[u1,2]"
+  - topic: Axes/Z/aaLeadP
+    identifier: "/Channel/MachineAxis/aaLeadP[u1,3]"
+  - topic: Axes/B/aaLeadP
+    identifier: "/Channel/MachineAxis/aaLeadP[u1,4]"
+  - topic: Axes/C/aaLeadP
+    identifier: "/Channel/MachineAxis/aaLeadP[u1,5]"
+
+  - topic: Axes/X/aaCurr
+    identifier: "/Channel/MachineAxis/aaCurr[u1,1]"
+  - topic: Axes/Y/aaCurr
+    identifier: "/Channel/MachineAxis/aaCurr[u1,2]"
+  - topic: Axes/Z/aaCurr
+    identifier: "/Channel/MachineAxis/aaCurr[u1,3]"
+  - topic: Axes/B/aaCurr
+    identifier: "/Channel/MachineAxis/aaCurr[u1,4]"
+  - topic: Axes/C/aaCurr
+    identifier: "/Channel/MachineAxis/aaCurr[u1,5]"
+
+  - topic: Axes/X/aaTorque
+    identifier: "/Channel/MachineAxis/aaTorque[u1,1]"
+  - topic: Axes/Y/aaTorque
+    identifier: "/Channel/MachineAxis/aaTorque[u1,2]"
+  - topic: Axes/Z/aaTorque
+    identifier: "/Channel/MachineAxis/aaTorque[u1,3]"
+  - topic: Axes/B/aaTorque
+    identifier: "/Channel/MachineAxis/aaTorque[u1,4]"
+  - topic: Axes/C/aaTorque
+    identifier: "/Channel/MachineAxis/aaTorque[u1,5]"
+
+  - topic: Axes/X/aaVactB
+    identifier: "/Channel/MachineAxis/aaVactB[u1,1]"
+  - topic: Axes/Y/aaVactB
+    identifier: "/Channel/MachineAxis/aaVactB[u1,2]"
+  - topic: Axes/Z/aaVactB
+    identifier: "/Channel/MachineAxis/aaVactB[u1,3]"
+  - topic: Axes/B/aaVactB
+    identifier: "/Channel/MachineAxis/aaVactB[u1,4]"
+  - topic: Axes/C/aaVactB
+    identifier: "/Channel/MachineAxis/aaVactB[u1,5]"
+  
+  - topic: Axes/X/aaAcc
+    identifier: "/Channel/MachineAxis/aaAcc[u1,1]"
+  - topic: Axes/Y/aaAcc
+    identifier: "/Channel/MachineAxis/aaAcc[u1,2]"
+  - topic: Axes/Z/aaAcc
+    identifier: "/Channel/MachineAxis/aaAcc[u1,3]"
+  - topic: Axes/B/aaAcc
+    identifier: "/Channel/MachineAxis/aaAcc[u1,4]"
+  - topic: Axes/C/aaAcc
+    identifier: "/Channel/MachineAxis/aaAcc[u1,5]"
+
+  - topic: Axes/X/aaLoad
+    identifier: "/Channel/MachineAxis/aaLoad[u1,1]"
+  - topic: Axes/Y/aaLoad
+    identifier: "/Channel/MachineAxis/aaLoad[u1,2]"
+  - topic: Axes/Z/aaLoad
+    identifier: "/Channel/MachineAxis/aaLoad[u1,3]"
+  - topic: Axes/B/aaLoad
+    identifier: "/Channel/MachineAxis/aaLoad[u1,4]"
+  - topic: Axes/C/aaLoad
+    identifier: "/Channel/MachineAxis/aaLoad[u1,5]"

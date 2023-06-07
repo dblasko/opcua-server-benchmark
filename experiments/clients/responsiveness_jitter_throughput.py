@@ -16,20 +16,20 @@ class ResponsivenessJitterThroughputExperiment:
     def __init__(
         self,
         server_url,
-        node_id,
+        node_ids,
         server_user,
         server_password,
         server_cert_app_uri,
         server_pub_cert,
         server_priv_cert,
         experiment_name=f'responsiveness_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
-        num_requests=1000,
+        num_requests=10,  # TODO: make default 1000 configurable
         data_size=64,
         filename_prefix="",
         experiment_number="",
     ):
         self.server_url = server_url
-        self.node_id = node_id
+        self.node_ids = node_ids
         self.experiment_name = experiment_name
         self.num_requests = num_requests
         self.data_size = data_size
@@ -55,15 +55,18 @@ class ResponsivenessJitterThroughputExperiment:
             float: start time of the request
             float: end time of the request
         """
-        node = client.get_node(self.node_id)  # Get the node object from the node ID
+        # node = client.get_node(self.node_id)  # Get the node object from the node ID
+        nodes_to_read = [client.get_node(node_id) for node_id in self.node_ids]
         # Create a random data value of the given size
         data = bytes([random.randint(0, 255) for _ in range(self.data_size)])
 
         start_time = time.time()
         if mode == "read":
-            await node.read_value()
+            _ = await client.read_values(nodes_to_read)
         elif mode == "write":
-            await node.write_value(data)
+            await client.write_values(
+                nodes_to_read, [data for i in range(len(nodes_to_read))]
+            )
         else:
             raise ValueError("Invalid mode")
         end_time = time.time()
