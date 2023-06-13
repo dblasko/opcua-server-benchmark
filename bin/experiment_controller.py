@@ -187,10 +187,11 @@ def main_run_experiment(
                 )
                 analysis_client = analysis_class_(experiment_name=name)
                 analysis_client.generate()
-            except Exception:
+            except Exception as e:
                 click.echo(
                     f"Could not post-process results of {experiment}, check if a class with the same name as the experiment is defined with a generate method in the analysis folder. Skipping this step."
                 )
+                click.echo(e)
 
 
 # ANALYSIS
