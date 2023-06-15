@@ -1,6 +1,7 @@
 from pathlib import Path
 import json
 import os
+import seaborn as sns
 
 import pandas as pd
 import numpy as np
@@ -93,7 +94,7 @@ class ScalabilityEvolutionAnalysis:
         summary = {}
 
         for evolution in range(
-            len(self.evolutions_read)
+                len(self.evolutions_read)
         ):  # for each group of nclient in parallel
             read_responsivenesses = []
             read_jitters = []
@@ -187,43 +188,60 @@ class ScalabilityEvolutionAnalysis:
                     axs[i, j].set(
                         xlabel="Number of clients",
                         ylabel=str(metrics[i + 2 * j])
-                        + (
-                            " (bytes/s)"
-                            if metrics[i + 2 * j] == "throughput_mean"
-                            else ""
-                        )
-                        + (
-                            " (s)"
-                            if metrics[i + 2 * j] == "responsiveness_mean"
-                            else ""
-                        ),
+                               + (
+                                   " (bytes/s)"
+                                   if metrics[i + 2 * j] == "throughput_mean"
+                                   else ""
+                               )
+                               + (
+                                   " (s)"
+                                   if metrics[i + 2 * j] == "responsiveness_mean"
+                                   else ""
+                               ),
                     )
                     axs[i, j].set_xticks(idx_vals, idx_vals, minor=False)
         handles, labels = axs[0, 0].get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper right", ncol=2)
 
-        # for m in [0, 1]:
-        #     vals = summary_df.loc[modes[m], "responsiveness"].values
-        #     n_client = summary_df.loc[modes[m], "responsiveness"].index.values
+        for m in range(0, len(modes)):
+            vals = summary_df.loc[modes[m], "responsiveness"].values
+            n_client = summary_df.loc[modes[m], "responsiveness"].index.values
 
-        #     # create a dtaframe with "n_client", "responsiveness" as columns
-        #     df = pd.DataFrame(columns=["responsiveness"])
-        #     df.index.name = 'n_client'
+            # create a dtaframe with "n_client", "responsiveness" as columns
+            df = pd.DataFrame(columns=["responsiveness"])
+            df.index.name = 'n_client'
 
-        #     for i in range(len(vals)):
-        #         for _ in range(len(vals[i])):
-        #             if n_client[i] in df.index:
-        #                 df.loc[n_client[i], 'responsiveness'] = np.append(np.asarray(df.loc[n_client[i], 'responsiveness']), (vals[i][0]))
-        #             else :
-        #                 df.loc[n_client[i], 'responsiveness'] = vals[i][0]
+            for i in range(len(vals)):
+                for _ in range(len(vals[i])):
+                    if n_client[i] in df.index:
+                        df.loc[n_client[i], 'responsiveness'] = np.append(
+                            np.asarray(df.loc[n_client[i], 'responsiveness']), (vals[i][0]))
+                    else:
+                        df.loc[n_client[i], 'responsiveness'] = vals[i][0]
 
-        #     axs[m, 2].hist(
-        #         df['responsiveness'].values,
-        #         label=df.index,
-        #     )
-        #     axs[m, 2].legend().set_title('n client')
-        #     axs[m, 2].set_ylabel('Frequency')
-        #     axs[m, 2].set_xlabel(f'response time {modes[m]}')
+            df_exploded = df.explode('responsiveness')
+            df_exploded = df_exploded.reset_index()
+
+            unique_clients = list(pd.unique(df_exploded.n_client))
+
+            for nc in unique_clients:
+                sns.kdeplot(
+                        x=df_exploded.loc[df_exploded.n_client == nc, 'responsiveness'],
+                        fill=True,
+                        hue=df_exploded.n_client,
+                        palette="crest",
+                        alpha=.5,
+                        label=nc,
+                        ax=axs[m, 2])
+
+            axs[m, 2].set_xlim(right=max(df_exploded.responsiveness)*0.8)
+            axs[m, 2].legend().set_title('n client')
+            axs[m, 2].set_ylabel('Probability density estimate')
+            axs[m, 2].set_xlabel(f'response time {modes[m]}')
+
+        # clean if only read or write
+        if len(modes) == 1:
+            axs[1, 2].remove()
 
         output_dir = Path(f"data/{self.experiment_name}/results")
         output_file = output_dir / "scalability_Evolution_summary.json"
