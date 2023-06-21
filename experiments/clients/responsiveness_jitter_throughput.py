@@ -90,13 +90,15 @@ class ResponsivenessJitterThroughputExperiment:
         client = Client(self.server_url)
         client.set_user(self.server_user)
         client.set_password(self.server_password)
-        client.application_uri = self.server_cert_app_uri
-        await client.set_security_string("Basic256,Sign,uaexpert.der,uaexpert_key.pem")
+        if self.server_cert_app_uri is not None:
+            client.application_uri = self.server_cert_app_uri
+            await client.set_security_string(
+                "Basic256,Sign,uaexpert.der,uaexpert_key.pem"
+            )
         try:
             await client.connect()
         except Exception as e:
             print(f"Error: {e}")
-        print("connected")
 
         measurements = []
         for i in tqdm(

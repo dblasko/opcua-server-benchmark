@@ -73,7 +73,7 @@ available_experiments = __load_experiment_list()
 )
 def main_server(name, port, uri):
     logging.basicConfig(level=logging.DEBUG)
-    asyncio.run(test_server.setup_server(name=name, uri=uri, port=port), debug=True)
+    # asyncio.run(test_server.setup_server(name=name, uri=uri, port=port), debug=True)
 
 
 # EXPERIMENTS
@@ -144,9 +144,15 @@ def main_run_experiment(
             "experiment_name": name,
             "server_user": config["server_user"],
             "server_password": config["server_password"],
-            "server_cert_app_uri": config["server_certificate_application_uri"],
-            "server_pub_cert": config["server_public_cert"],
-            "server_priv_cert": config["server_private_cert"],
+            "server_cert_app_uri": config["server_certificate_application_uri"]
+            if "server_certificate_application_uri" in config
+            else None,
+            "server_pub_cert": config["server_public_cert"]
+            if "server_public_cert" in config
+            else None,
+            "server_priv_cert": config["server_private_cert"]
+            if "server_private_cert" in config
+            else None,
         }
         # Load experiment-specific options that are passed to run_experiment
         run_experiment_args = {}
