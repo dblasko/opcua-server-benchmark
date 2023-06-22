@@ -67,7 +67,7 @@ def __load_session_data(experiment_prefix):
 
 if __name__ == "__main__":
     # Read in data
-    EXPERIMENT_PREFIX = "data/wfl_7_june_"
+    EXPERIMENT_PREFIX = "data/wfl_21_june_"
     (
         experiment_summaries,
         summary_data,
