@@ -114,6 +114,13 @@ def main_server(name, port, uri):
     help="Number of clients to run in parallel",
 )
 @click.option(
+    "-nn",
+    "--nnodes",
+    "nnodes",
+    default=None,
+    help="Number of nodes to read at maximum, by default all nodes listed in the configuration are read",
+)
+@click.option(
     "-lc",
     "--listclients",
     "listclients",
@@ -121,7 +128,7 @@ def main_server(name, port, uri):
     help='(scalability_evolution ONLY) List of numbers of clients to run in parallel, e.g. "1,10,50,100"',
 )
 def main_run_experiment(
-    experiments, config, name, post_process, mode, nclients, listclients
+    experiments, config, name, post_process, mode, nclients, nnodes, listclients
 ):
     # Load config
     try:
@@ -135,7 +142,8 @@ def main_run_experiment(
     for experiment in experiments:
         click.echo(f"Running requested experiment {experiment}...")
 
-        config["nodes_to_query_ids"] = config["nodes_to_query_ids"][:40]
+        if nnodes is not None:
+            config["nodes_to_query_ids"] = config["nodes_to_query_ids"][: int(nnodes)]
         click.echo(f'{len(config["nodes_to_query_ids"])} nodes to read in experiments.')
 
         experiment_constructor = {

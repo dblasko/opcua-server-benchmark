@@ -24,7 +24,7 @@ class ResponsivenessJitterThroughputExperiment:
         server_pub_cert,
         server_priv_cert,
         experiment_name=f'responsiveness_{datetime.now().strftime("%d-%m-%Y_%H-%M-%S")}',
-        num_requests=1000,  # TODO: make default 1000 configurable
+        num_requests=1000,
         data_size=64,
         filename_prefix="",
         experiment_number="",
